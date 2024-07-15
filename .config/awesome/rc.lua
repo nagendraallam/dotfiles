@@ -74,6 +74,7 @@ beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 -- This is used later as the default terminal and editor to run.
 terminal = "alacritty"
 browser = "google-chrome-stable --enable-features=TouchpadOverscrollHistoryNavigation"
+screenshot = "gnome-screenshot -i"
 decrease_vol = "pamixer --decrease 5"
 increase_vol = "pamixer --increase 5"
 increase_brightness = "brightnessctl s +5%"
@@ -196,13 +197,20 @@ awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
     set_wallpaper(s)
 
-    -- Each screen has its own tag table.
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+    s.padding = {
+        top = 25,
+        right = 10,
+        bottom = 10,
+        left = 10
+    }
 
-    -- Create a promptbox for each screen
+    -- Each screen has its own tag table.
+    awful.tag({ "WEB", "CODE", "TERM", "FILES", "CHAT" }, s, awful.layout.layouts[1])
+    --
+    -- -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
-    -- Create an imagebox widget which will contain an icon indicating which layout we're using.
-    -- We need one layoutbox per screen.
+    -- -- Create an imagebox widget which will contain an icon indicating which layout we're using.
+    -- -- We need one layoutbox per screen.
     s.mylayoutbox = awful.widget.layoutbox(s)
     s.mylayoutbox:buttons(gears.table.join(
                            awful.button({ }, 1, function () awful.layout.inc( 1) end),
@@ -215,36 +223,36 @@ awful.screen.connect_for_each_screen(function(s)
         filter  = awful.widget.taglist.filter.all,
         buttons = taglist_buttons
     }
-
+    
     -- Create a tasklist widget
     s.mytasklist = awful.widget.tasklist {
         screen  = s,
         filter  = awful.widget.tasklist.filter.currenttags,
         buttons = tasklist_buttons
     }
-
-    -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s })
-
-    -- Add widgets to the wibox
-    s.mywibox:setup {
-        layout = wibox.layout.align.horizontal,
-        { -- Left widgets
-            layout = wibox.layout.fixed.horizontal,
-            mylauncher,
-            s.mytaglist,
-            s.mypromptbox,
-        },
-        s.mytasklist, -- Middle widget
-        { -- Right widgets
-            layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
-            wibox.widget.systray(),
-            mytextclock,
-            battery.widget,
-            s.mylayoutbox,
-        },
-    }
+    
+    -- -- Create the wibox
+    -- s.mywibox = awful.wibar({ position = "top", screen = s })
+    --
+    -- -- Add widgets to the wibox
+    -- s.mywibox:setup {
+    --     layout = wibox.layout.align.horizontal,
+    --     { -- Left widgets
+    --         layout = wibox.layout.fixed.horizontal,
+    --         mylauncher,
+    --         s.mytaglist,
+    --         s.mypromptbox,
+    --     },
+    --     s.mytasklist, -- Middle widget
+    --     { -- Right widgets
+    --         layout = wibox.layout.fixed.horizontal,
+    --         mykeyboardlayout,
+    --         wibox.widget.systray(),
+    --         mytextclock,
+    --         battery.widget,
+    --         s.mylayoutbox,
+    --     },
+    -- }
 end)
 -- }}}
 
@@ -315,6 +323,8 @@ globalkeys = gears.table.join(
               {description = "decrease brightness", group = "Brightness"}),
     awful.key({modkey,            }, "slash", function () awful.spawn(browser)  end,
               {description = "open a browser", group = "launcher"}),
+    awful.key({                   }, "F6", function () awful.spawn(screenshot) end,
+              {description = "take screenshot + prnt screen", group = "launcher"}),
     awful.key({modkey, "Shift"    },"Delete", function() awful.spawn(shutdown) end,
               {description = "shortcut to shutdown pc", group = "launcher"}),
     awful.key({modkey,            },"space", function () awful.spawn(rofi) end,
@@ -536,7 +546,23 @@ awful.rules.rules = {
       }, properties = { titlebars_enabled = false }
     },
 
-    -- Set Firefox to always map on the tag named "2" on screen 1.
+    { rule = { class = "Alacritty" },
+      properties = { tag = "TERM" }
+    },
+    { rule = { class = "Google-chrome" },
+      properties = { tag = "WEB"}
+    },
+    { rule = { class = "discord" },
+      properties = {tag = "CHAT"}
+    },
+    { rule = {class = "Code" },
+      properties = { tag = "CODE"}
+    },
+
+
+
+
+       -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
     --   properties = { screen = 1, tag = "2" } },
 }
@@ -639,3 +665,4 @@ end)
 -- running things i need during login
 awful.spawn.with_shell("picom --config ~/.config/picom/picom.conf")
 awful.spawn.with_shell("flatpak run com.discordapp.Discord")
+awful.spawn.with_shell("polybar")
