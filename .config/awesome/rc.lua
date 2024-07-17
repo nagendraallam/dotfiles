@@ -77,6 +77,8 @@ browser = "google-chrome-stable --enable-features=TouchpadOverscrollHistoryNavig
 screenshot = "gnome-screenshot -i"
 decrease_vol = "pamixer --decrease 5"
 increase_vol = "pamixer --increase 5"
+increase_kbd_brightness = "brightnessctl --device='asus::kbd_backlight' set +1"
+decrease_kbd_brightness = "brightnessctl --device='asus::kbd_backlight' set 1-"
 increase_brightness = "brightnessctl s +5%"
 decrease_brightness = "brightnessctl s 5%-"
 shutdown = "shutdown now"
@@ -190,6 +192,9 @@ local function set_wallpaper(s)
 end
 
 
+beautiful.useless_gap = 5
+
+
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
 
@@ -198,14 +203,15 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     s.padding = {
-        top = 25,
+        top = 75,
         right = 10,
         bottom = 10,
         left = 10
     }
 
     -- Each screen has its own tag table.
-    awful.tag({ "WEB", "CODE", "TERM", "FILES", "CHAT" }, s, awful.layout.layouts[1])
+    awful.tag({ "󰖟", "󰘐", "", "", "" }, s, awful.layout.layouts[1])
+
     --
     -- -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
@@ -317,6 +323,10 @@ globalkeys = gears.table.join(
               {description = "Increase volume", group = "Volume"}),
     awful.key({}, "XF86AudioLowerVolume", function() awful.spawn(decrease_vol) end,
               {description = "Decrease volume", group = "Volume"}),
+    awful.key({}, "XF86KbdBrightnessDown", function() awful.spawn(decrease_kbd_brightness) end,
+              {description = "Decrease Brightness", group = "Brightness"}),
+    awful.key({}, "XF86KbdBrightnessUp", function() awful.spawn(increase_kbd_brightness) end,
+              {description = "Increase Brightness", group = "Brightness"}),
     awful.key({}, "XF86MonBrightnessUp", function() awful.spawn(increase_brightness) end,
               {description = "increase brightness", group = "Brightness"}),
     awful.key({},"XF86MonBrightnessDown", function() awful.spawn(decrease_brightness) end,
@@ -547,18 +557,17 @@ awful.rules.rules = {
     },
 
     { rule = { class = "Alacritty" },
-      properties = { tag = "TERM" }
+      properties = { tag = "" }
     },
     { rule = { class = "Google-chrome" },
-      properties = { tag = "WEB"}
+      properties = { tag = "󰖟"}
     },
     { rule = { class = "discord" },
-      properties = {tag = "CHAT"}
+      properties = {tag = ""}
     },
     { rule = {class = "Code" },
-      properties = { tag = "CODE"}
+      properties = { tag = "󰘐"}
     },
-
 
 
 
@@ -661,6 +670,11 @@ awesome.connect_signal("volume_change", function()
     end)
 end)
 
+client.connect_signal("manage", function(c)
+    c.shape = function(cr, w, h)
+        gears.shape.rounded_rect(cr, w, h, 20)
+    end
+end)
 
 -- running things i need during login
 awful.spawn.with_shell("picom --config ~/.config/picom/picom.conf")
