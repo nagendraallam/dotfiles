@@ -74,6 +74,7 @@ beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 -- This is used later as the default terminal and editor to run.
 terminal = "alacritty"
 browser = "google-chrome-stable --enable-features=TouchpadOverscrollHistoryNavigation"
+files = "nautilus"
 screenshot = "gnome-screenshot -i"
 decrease_vol = "pamixer --decrease 5"
 increase_vol = "pamixer --increase 5"
@@ -82,7 +83,7 @@ decrease_kbd_brightness = "brightnessctl --device='asus::kbd_backlight' set 1-"
 increase_brightness = "brightnessctl s +5%"
 decrease_brightness = "brightnessctl s 5%-"
 shutdown = "shutdown now"
-rofi = "rofi -show run"
+rofi = 'rofi -show drun -theme ".config/rofi/launchers/type-5/style-4.rasi"'
 editor = os.getenv("EDITOR") or "nano"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -203,14 +204,14 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     s.padding = {
-        top = 75,
+        top = 25,
         right = 10,
         bottom = 10,
         left = 10
     }
 
     -- Each screen has its own tag table.
-    awful.tag({ "󰖟", "󰘐", "", "", "" }, s, awful.layout.layouts[1])
+    awful.tag({"","󰖟", "󰘐", "", "" }, s, awful.layout.layouts[1])
 
     --
     -- -- Create a promptbox for each screen
@@ -333,6 +334,8 @@ globalkeys = gears.table.join(
               {description = "decrease brightness", group = "Brightness"}),
     awful.key({modkey,            }, "slash", function () awful.spawn(browser)  end,
               {description = "open a browser", group = "launcher"}),
+    awful.key({modkey,            },"period", function () awful.spawn(files) end,
+              {description = "open files",  group = "launcher"}),
     awful.key({                   }, "F6", function () awful.spawn(screenshot) end,
               {description = "take screenshot + prnt screen", group = "launcher"}),
     awful.key({modkey, "Shift"    },"Delete", function() awful.spawn(shutdown) end,
@@ -575,6 +578,9 @@ awful.rules.rules = {
     -- { rule = { class = "Firefox" },
     --   properties = { screen = 1, tag = "2" } },
 }
+
+
+
 -- }}}
 
 -- {{{ Signals
@@ -671,6 +677,11 @@ awesome.connect_signal("volume_change", function()
 end)
 
 client.connect_signal("manage", function(c)
+  
+      if c.class ~= nil and c.class:lower() == "polybar" then
+        return -- Do nothing for Polybar clients
+    end
+
     c.shape = function(cr, w, h)
         gears.shape.rounded_rect(cr, w, h, 20)
     end
