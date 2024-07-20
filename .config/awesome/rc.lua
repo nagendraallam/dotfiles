@@ -74,6 +74,7 @@ beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 -- This is used later as the default terminal and editor to run.
 terminal = "alacritty"
 browser = "google-chrome-stable --enable-features=TouchpadOverscrollHistoryNavigation"
+configs = "alacritty -e nvim ~/.config"
 files = "nautilus"
 screenshot = "gnome-screenshot -i"
 decrease_vol = "pamixer --decrease 5"
@@ -204,14 +205,14 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     s.padding = {
-        top = 25,
+        top = 20,
         right = 10,
         bottom = 10,
         left = 10
     }
 
     -- Each screen has its own tag table.
-    awful.tag({"","󰖟", "󰘐", "", "" }, s, awful.layout.layouts[1])
+    awful.tag({"","󰖟", "󰘐","", "", "", "󰑋" }, s, awful.layout.layouts[1])
 
     --
     -- -- Create a promptbox for each screen
@@ -288,6 +289,12 @@ globalkeys = gears.table.join(
         end,
         {description = "focus next by index", group = "client"}
     ),
+        awful.key({ modkey,           }, "d",
+        function ()
+            awful.client.focus.byidx( 1)
+        end,
+        {description = "focus next by index", group = "client"}
+    ),
     awful.key({ modkey,           }, "k",
         function ()
             awful.client.focus.byidx(-1)
@@ -332,6 +339,8 @@ globalkeys = gears.table.join(
               {description = "increase brightness", group = "Brightness"}),
     awful.key({},"XF86MonBrightnessDown", function() awful.spawn(decrease_brightness) end,
               {description = "decrease brightness", group = "Brightness"}),
+    awful.key({modkey,            }, "e", function () awful.spawn(configs)  end,
+              {description = "open a browser", group = "launcher"}),
     awful.key({modkey,            }, "slash", function () awful.spawn(browser)  end,
               {description = "open a browser", group = "launcher"}),
     awful.key({modkey,            },"period", function () awful.spawn(files) end,
@@ -571,8 +580,12 @@ awful.rules.rules = {
     { rule = {class = "Code" },
       properties = { tag = "󰘐"}
     },
-
-
+    { rule = {class = "obsidian"},
+      properties = { tag = ""}
+    },
+    { rule = { class = "obs"}, 
+      properties = { tag = "󰑋"} 
+    }
 
        -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
@@ -691,3 +704,4 @@ end)
 awful.spawn.with_shell("picom --config ~/.config/picom/picom.conf")
 awful.spawn.with_shell("flatpak run com.discordapp.Discord")
 awful.spawn.with_shell("polybar")
+awful.spawn.with_shell(terminal)
