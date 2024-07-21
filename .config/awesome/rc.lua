@@ -75,7 +75,7 @@ beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 terminal = "alacritty"
 browser = "google-chrome-stable --enable-features=TouchpadOverscrollHistoryNavigation"
 configs = "alacritty -e nvim ~/.config"
-files = "nautilus"
+files = "thunar"
 screenshot = "gnome-screenshot -i"
 decrease_vol = "pamixer --decrease 5"
 increase_vol = "pamixer --increase 5"
@@ -205,14 +205,14 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     s.padding = {
-        top = 20,
+        top = 10,
         right = 10,
         bottom = 10,
         left = 10
     }
 
     -- Each screen has its own tag table.
-    awful.tag({"","󰖟", "󰘐","", "", "", "󰑋" }, s, awful.layout.layouts[1])
+    awful.tag({"","󰖟", "󰘐","", "", ""," ","󰤉" }, s, awful.layout.layouts[1])
 
     --
     -- -- Create a promptbox for each screen
@@ -263,13 +263,13 @@ awful.screen.connect_for_each_screen(function(s)
     -- }
 end)
 -- }}}
-
--- {{{ Mouse bindings
-root.buttons(gears.table.join(
-    awful.button({ }, 3, function () mymainmenu:toggle() end),
-    awful.button({ }, 4, awful.tag.viewnext),
-    awful.button({ }, 5, awful.tag.viewprev)
-))
+--
+-- -- {{{ Mouse bindings
+-- root.buttons(gears.table.join(
+--     awful.button({ }, 3, function () mymainmenu:toggle() end),
+--     awful.button({ }, 4, awful.tag.viewnext),
+--     awful.button({ }, 5, awful.tag.viewprev)
+-- ))
 -- }}}
 
 -- {{{ Key bindings
@@ -580,13 +580,14 @@ awful.rules.rules = {
     { rule = {class = "Code" },
       properties = { tag = "󰘐"}
     },
+    { rule = { class = "obs"}, 
+      properties = { tag = "󰤉"} 
+    },
     { rule = {class = "obsidian"},
       properties = { tag = ""}
     },
-    { rule = { class = "obs"}, 
-      properties = { tag = "󰑋"} 
-    }
-
+{ rule = { class = "Polybar" },
+  properties = { focusable = false, border_width = 0 } }
        -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
     --   properties = { screen = 1, tag = "2" } },
@@ -696,7 +697,7 @@ client.connect_signal("manage", function(c)
     end
 
     c.shape = function(cr, w, h)
-        gears.shape.rounded_rect(cr, w, h, 20)
+        gears.shape.rounded_rect(cr, w, h, 5)
     end
 end)
 
@@ -704,4 +705,61 @@ end)
 awful.spawn.with_shell("picom --config ~/.config/picom/picom.conf")
 awful.spawn.with_shell("flatpak run com.discordapp.Discord")
 awful.spawn.with_shell("polybar")
-awful.spawn.with_shell(terminal)
+
+
+-- Import required libraries
+local awful = require("awful")
+local gears = require("gears")
+
+-- Function to check if an application is running
+local function is_running(app_name)
+    local cmd = "pgrep -x " .. app_name
+    local handle = io.popen(cmd)
+    local result = handle:read("*a")
+    handle:close()
+    return result ~= ""
+end
+
+-- Function to launch an application in a specific workspace
+local function launch_if_not_running(app_name, workspace, launch_cmd)
+    if not is_running(app_name) then
+        awful.spawn(launch_cmd)
+        -- Move the client to the specified workspace
+        awesome.connect_signal("manage", function (c)
+            if c.class == app_name then
+                local t = awful.tag.find_by_name(awful.screen.focused(), workspace)
+                if t then
+                    c:move_to_tag(t)
+                end
+            end
+        end)
+    end
+end
+
+-- Connect to the tag change event
+tag.connect_signal("property::selected", function(t)
+    if t.name == "󰖟" then
+        launch_if_not_running("chrome", "󰖟", browser)
+    end
+    
+    if t.name == "" then
+        launch_if_not_running("thunar", "", files)
+    end
+
+    if t.name == "" then
+        launch_if_not_running("alacritty", "", terminal)
+    end
+
+    if t.name == "" then
+        launch_if_not_running("discord", "", "flatpak run com.discordapp.Discord")
+    end
+
+    if t.name == "󰘐" then
+        launch_if_not_running("code", "󰘐", "code")
+    end
+
+    if t.name == "" then
+        launch_if_not_running("electron", "", "obsidian")
+    end
+end)
+    -- awful.tag({"","󰖟", "󰘐","", "", "", "󰑋" }, s
