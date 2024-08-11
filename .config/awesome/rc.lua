@@ -1,4 +1,4 @@
--- If LuaRocks is installed, make sure that packages installed through it are
+-- i- If LuaRocks is installed, make sure that packages installed through it are
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 pcall(require, "luarocks.loader")
 
@@ -16,16 +16,16 @@ local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup")
 
 
-local lain          = require("lain")
-local freedesktop   = require("freedesktop")
+-- local lain          = require("lain")
+-- local freedesktop   = require("freedesktop")
 local mytable       = awful.util.table or gears.table -- 4.{0,1} compatibility
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
 
 
-local battery_widget = require("battery-widget")
-local battery = battery_widget:new({})
+-- local battery_widget = require("battery-widget")
+-- local battery = battery_widget:new({})
 
 local themes = {
     "blackburn",       -- 1
@@ -76,6 +76,7 @@ terminal = "alacritty"
 browser = "google-chrome-stable --enable-features=TouchpadOverscrollHistoryNavigation"
 configs = "alacritty -e nvim ~/.config"
 files = "thunar"
+powerprofiles = "/home/nagendra/powermode.sh"
 screenshot = "gnome-screenshot -i"
 decrease_vol = "pamixer --decrease 5"
 increase_vol = "pamixer --increase 5"
@@ -84,7 +85,7 @@ decrease_kbd_brightness = "brightnessctl --device='asus::kbd_backlight' set 1-"
 increase_brightness = "brightnessctl s +5%"
 decrease_brightness = "brightnessctl s 5%-"
 shutdown = "shutdown now"
-rofi = 'rofi -show drun -theme ".config/rofi/launchers/type-5/style-4.rasi"'
+rofi = 'rofi -show drun'
 editor = os.getenv("EDITOR") or "nano"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -205,14 +206,17 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     s.padding = {
-        top = 10,
-        right = 10,
-        bottom = 10,
-        left = 10
+        top = 5,
+        right = 0,
+        bottom = 0,
+        left = 0
     }
 
-    -- Each screen has its own tag table.
-    awful.tag({"","󰖟", "󰘐","", "", ""," ","󰤉" }, s, awful.layout.layouts[1])
+    -- Each screen has its own tag table.maxn()
+
+    -- awful.tag({"","󰖟", "","󰘝", "", "","","󰤉" }, s, awful.layout.layouts[1])
+    awful.tag({"","󰖟", "", "", "","","" }, s, awful.layout.layouts[1])
+
 
     --
     -- -- Create a promptbox for each screen
@@ -345,6 +349,8 @@ globalkeys = gears.table.join(
               {description = "open a browser", group = "launcher"}),
     awful.key({modkey,            },"period", function () awful.spawn(files) end,
               {description = "open files",  group = "launcher"}),
+   awful.key({modkey,            },"p", function () awful.spawn(powerprofiles) end,
+              {description = "open power profiles",  group = "scripts"}),
     awful.key({                   }, "F6", function () awful.spawn(screenshot) end,
               {description = "take screenshot + prnt screen", group = "launcher"}),
     awful.key({modkey, "Shift"    },"Delete", function() awful.spawn(shutdown) end,
@@ -398,10 +404,10 @@ globalkeys = gears.table.join(
                     history_path = awful.util.get_cache_dir() .. "/history_eval"
                   }
               end,
-              {description = "lua execute prompt", group = "awesome"}),
-    -- Menubar
-    awful.key({ modkey }, "p", function() menubar.show() end,
-              {description = "show the menubar", group = "launcher"})
+              {description = "lua execute prompt", group = "awesome"})
+    -- -- Menubar
+    -- awful.key({ modkey }, "p", function() menubar.show() end,
+    --           {description = "show the menubar", group = "launcher"})
 )
 
 clientkeys = gears.table.join(
@@ -574,17 +580,22 @@ awful.rules.rules = {
     { rule = { class = "Google-chrome" },
       properties = { tag = "󰖟"}
     },
+
+    { rule = { class = "org.gnome.Nautilus" },
+      properties = { tag = ""}
+    },
+
     { rule = { class = "discord" },
       properties = {tag = ""}
     },
     { rule = {class = "Code" },
-      properties = { tag = "󰘐"}
+      properties = { tag = ""}
     },
     { rule = { class = "obs"}, 
-      properties = { tag = "󰤉"} 
+      properties = { tag = ""} 
     },
     { rule = {class = "obsidian"},
-      properties = { tag = ""}
+      properties = { tag = "󰘝"}
     },
 { rule = { class = "Polybar" },
   properties = { focusable = false, border_width = 0 } }
@@ -697,7 +708,7 @@ client.connect_signal("manage", function(c)
     end
 
     c.shape = function(cr, w, h)
-        gears.shape.rounded_rect(cr, w, h, 5)
+        gears.shape.rounded_rect(cr, w, h, 0)
     end
 end)
 
@@ -742,24 +753,24 @@ tag.connect_signal("property::selected", function(t)
         launch_if_not_running("chrome", "󰖟", browser)
     end
     
-    if t.name == "" then
-        launch_if_not_running("thunar", "", files)
-    end
+    -- if t.name == "" then
+    --     launch_if_not_running("org.gnome.Nautilus", "", files)
+    -- end
 
     if t.name == "" then
         launch_if_not_running("alacritty", "", terminal)
     end
-
-    if t.name == "" then
-        launch_if_not_running("discord", "", "flatpak run com.discordapp.Discord")
-    end
-
-    if t.name == "󰘐" then
-        launch_if_not_running("code", "󰘐", "code")
-    end
-
-    if t.name == "" then
-        launch_if_not_running("electron", "", "obsidian")
-    end
+    --
+    -- if t.name == "" then
+    --     launch_if_not_running("discord", "", "flatpak run com.discordapp.Discord")
+    -- end
+    --
+    -- if t.name == "󰘐" then
+    --     launch_if_not_running("code", "󰅭", "code")
+    -- end
+    --
+    -- if t.name == "" then
+    --     launch_if_not_running("electron", "", "obsidian")
+    -- end
 end)
     -- awful.tag({"","󰖟", "󰘐","", "", "", "󰑋" }, s
