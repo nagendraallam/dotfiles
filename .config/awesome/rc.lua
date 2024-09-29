@@ -71,9 +71,12 @@ end
 -- Themes define colours, icons, font and wallpapers.
 beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 
+beautiful.notification_position = "top_middle"
+
 -- This is used later as the default terminal and editor to run.
 terminal = "alacritty"
 browser = "google-chrome-stable --enable-features=TouchpadOverscrollHistoryNavigation"
+lockscreen = "python3 home/nagendra/lock.py"
 configs = "alacritty -e nvim ~/.config"
 files = "thunar"
 powerprofiles = "/home/nagendra/powermode.sh"
@@ -206,16 +209,16 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     s.padding = {
-        top = 5,
-        right = 0,
-        bottom = 0,
-        left = 0
+        top = 10,
+        right = 5,
+        bottom = 5,
+        left = 5
     }
 
     -- Each screen has its own tag table.maxn()
 
     -- awful.tag({"","󰖟", "","󰘝", "", "","","󰤉" }, s, awful.layout.layouts[1])
-    awful.tag({"","󰖟", "", "", "","","" }, s, awful.layout.layouts[1])
+    awful.tag({"","󰖟", "", "", "","󰠮","" }, s, awful.layout.layouts[1])
 
 
     --
@@ -344,9 +347,11 @@ globalkeys = gears.table.join(
     awful.key({},"XF86MonBrightnessDown", function() awful.spawn(decrease_brightness) end,
               {description = "decrease brightness", group = "Brightness"}),
     awful.key({modkey,            }, "e", function () awful.spawn(configs)  end,
-              {description = "open a browser", group = "launcher"}),
+              {description = "open a , browser", group = "launcher"}),
     awful.key({modkey,            }, "slash", function () awful.spawn(browser)  end,
               {description = "open a browser", group = "launcher"}),
+    awful.key({modkey,            }, "i", function () awful.spawn(lockscreen) end,
+              {description = "locks screen", group ="launcher"}), 
     awful.key({modkey,            },"period", function () awful.spawn(files) end,
               {description = "open files",  group = "launcher"}),
    awful.key({modkey,            },"p", function () awful.spawn(powerprofiles) end,
@@ -538,6 +543,23 @@ awful.rules.rules = {
      }
     },
 
+    {
+        rule = {},
+        properties = { maximized = true }
+    },
+
+    -- Rule for Polybar: do not maximize
+    {
+        rule_any = { class = { "Polybar" } },
+        properties = { maximized = false }
+    },
+
+    -- Rule for Alacritty: do not maximize
+    {
+        rule_any = { class = { "Alacritty" } },
+        properties = { maximized = false }
+    },
+
     -- Floating clients.
     { rule_any = {
         instance = {
@@ -708,7 +730,7 @@ client.connect_signal("manage", function(c)
     end
 
     c.shape = function(cr, w, h)
-        gears.shape.rounded_rect(cr, w, h, 0)
+        gears.shape.rounded_rect(cr, w, h, 5)
     end
 end)
 
@@ -774,3 +796,11 @@ tag.connect_signal("property::selected", function(t)
     -- end
 end)
     -- awful.tag({"","󰖟", "󰘐","", "", "", "󰑋" }, s
+--
+--
+awful.spawn.with_shell("~/.config/awesome/touchpad.sh")
+awful.spawn.with_shell("lxpolkit")
+
+
+naughty.config.defaults.position = "top_middle"
+
