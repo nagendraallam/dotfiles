@@ -79,7 +79,7 @@ browser = "google-chrome-stable --enable-features=TouchpadOverscrollHistoryNavig
 lockscreen = "python3 home/nagendra/lock.py"
 configs = "alacritty -e nvim ~/.config"
 files = "thunar"
-powerprofiles = "/home/nagendra/powermode.sh"
+powerprofiles = "/home/nagi/powermode.sh"
 screenshot = "gnome-screenshot -i"
 decrease_vol = "pamixer --decrease 5"
 increase_vol = "pamixer --increase 5"
@@ -194,7 +194,7 @@ local tasklist_buttons = gears.table.join(
 
 local function set_wallpaper(s)  
     -- Wallpaper
-        gears.wallpaper.maximized('/home/nagendra/Pictures/arch.png', s, true)
+        gears.wallpaper.maximized('/home/nagi/Pictures/arch.png', s, true)
 end
 
 
@@ -209,17 +209,18 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     s.padding = {
-        top = 10,
-        right = 5,
-        bottom = 5,
-        left = 5
+        top = 2,
+        right = 2,
+        bottom = 2,
+        left = 2
     }
 
     -- Each screen has its own tag table.maxn()
 
     -- awful.tag({"","󰖟", "","󰘝", "", "","","󰤉" }, s, awful.layout.layouts[1])
-    awful.tag({"","󰖟", "", "", "","󰠮","" }, s, awful.layout.layouts[1])
+    -- awful.tag({"","󰖟", "", "", "" }, s, awful.layout.layouts[1])
 
+    awful.tag({"1","2", "3", "4", "5" }, s, awful.layout.layouts[1])
 
     --
     -- -- Create a promptbox for each screen
@@ -545,7 +546,7 @@ awful.rules.rules = {
 
     {
         rule = {},
-        properties = { maximized = true }
+        properties = { maximized = false }
     },
 
     -- Rule for Polybar: do not maximize
@@ -554,11 +555,11 @@ awful.rules.rules = {
         properties = { maximized = false }
     },
 
-    -- Rule for Alacritty: do not maximize
-    {
-        rule_any = { class = { "Alacritty" } },
-        properties = { maximized = false }
-    },
+    -- -- Rule for Alacritty: do not maximize
+    -- {
+    --     rule_any = { class = { "Alacritty" } },
+    --     properties = { maximized = false }
+    -- },
 
     -- Floating clients.
     { rule_any = {
@@ -597,27 +598,27 @@ awful.rules.rules = {
     },
 
     { rule = { class = "Alacritty" },
-      properties = { tag = "" }
+      properties = { tag = "1" }
     },
     { rule = { class = "Google-chrome" },
-      properties = { tag = "󰖟"}
+      properties = { tag = "2"}
     },
 
     { rule = { class = "org.gnome.Nautilus" },
-      properties = { tag = ""}
+      properties = { tag = "4"}
     },
 
     { rule = { class = "discord" },
-      properties = {tag = ""}
+      properties = {tag = "5"}
     },
-    { rule = {class = "Code" },
-      properties = { tag = ""}
+    { rule = {class = "Cursor" },
+      properties = { tag = "3"}
     },
     { rule = { class = "obs"}, 
-      properties = { tag = ""} 
+      properties = { tag = "7"} 
     },
     { rule = {class = "obsidian"},
-      properties = { tag = "󰘝"}
+      properties = { tag = "7"}
     },
 { rule = { class = "Polybar" },
   properties = { focusable = false, border_width = 0 } }
@@ -730,14 +731,15 @@ client.connect_signal("manage", function(c)
     end
 
     c.shape = function(cr, w, h)
-        gears.shape.rounded_rect(cr, w, h, 5)
+        gears.shape.rounded_rect(cr, w, h, 00 )
     end
 end)
 
 -- running things i need during login
 awful.spawn.with_shell("picom --config ~/.config/picom/picom.conf")
 awful.spawn.with_shell("flatpak run com.discordapp.Discord")
-awful.spawn.with_shell("polybar")
+awful.spawn.with_shell("polybar -q cyn-bar -c /home/nagi/.config/polybar/config.ini")
+awful.spawn.with_shell("polybar -q cyn-bar2 -c /home/nagi/.config/polybar/config.ini")
 
 
 -- Import required libraries
@@ -752,6 +754,7 @@ local function is_running(app_name)
     handle:close()
     return result ~= ""
 end
+
 
 -- Function to launch an application in a specific workspace
 local function launch_if_not_running(app_name, workspace, launch_cmd)
@@ -771,17 +774,17 @@ end
 
 -- Connect to the tag change event
 tag.connect_signal("property::selected", function(t)
-    if t.name == "󰖟" then
-        launch_if_not_running("chrome", "󰖟", browser)
+    if t.name == "2" then
+        launch_if_not_running("chrome", "2", browser)
     end
     
     -- if t.name == "" then
     --     launch_if_not_running("org.gnome.Nautilus", "", files)
     -- end
-
-    if t.name == "" then
-        launch_if_not_running("alacritty", "", terminal)
-    end
+    --
+    -- if t.name == "1" then
+    --     launch_if_not_running("alacritty", "1", terminal)
+    -- end
     --
     -- if t.name == "" then
     --     launch_if_not_running("discord", "", "flatpak run com.discordapp.Discord")
